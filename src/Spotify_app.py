@@ -1,28 +1,8 @@
 import streamlit as st 
 import streamlit.components.v1 as components 
-
+import requests
 import pickle
-
-
-
-
-pickle_in = open("fordeploy3.pkl","rb")
-model=pickle.load(pickle_in)
-
-def predict_popu(acousticness,danceability,duration_ms,energy,loudness,speechiness,valence):
-    """
-    this method is for prediction process 
-    takes all the Audio characteristics that we used for modelling and returns the prediction 
-    """
-    #try:
-    #    prediction = 0
-    pickle_in = open("fordeploy3.pkl","rb")
-    model = pickle.load(pickle_in)
-    prediction=model.predict([[acousticness,danceability,duration_ms,energy,loudness,speechiness,valence]])
-    print(prediction)
-    #except InconsistentVersionWarning as w:
-    #    print(w.original_sklearn_version)
-    return prediction
+import responses
 
 
 
@@ -59,8 +39,29 @@ def main():
     result=""
     # done we got all the user inputs to predict and we need a button like a predict button we do that by "st.button()"
     # after hitting the button the prediction process will go on and then we print the success message by "st.success()"
+    
+    
+   
     if st.button("Predict"):
-        result=predict_popu(acousticness,danceability,duration_ms,energy,loudness,speechiness,valence)
+    #result=predict_popu(acousticness,danceability,duration_ms,energy,loudness,speechiness,valence)
+        input_data = {
+                "features": [acousticness, 
+                            danceability,
+                            duration_ms, 
+                            loudness,
+                            speechiness,
+                            valence,
+                            energy]
+            
+                        }
+        st.write(input_data)
+        response = requests.post('http://localhost:8000/predict', json=input_data)
+        st.write(response.json())
+        result = response.json()
+        st.write(f"Predicted Species: {result}")
+
+	
+
     st.success('The Popularity of the song is {}'.format(result))
     # one more button saying About ...
     if st.button("About"):
